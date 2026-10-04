@@ -6,7 +6,10 @@ from pydantic import BaseModel
 import sqlite3
 from datetime import datetime
 import os
-
+if os.environ.get("AWS_EXECUTION_ENV"):
+    DB_PATH = "/tmp/flood_data.db"
+else:
+    DB_PATH = os.path.join(os.path.dirname(__file__), "flood_data.db")
 
 app = FastAPI(
     title="Hyperlocal Flood Risk Prediction API",
@@ -14,7 +17,7 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -37,7 +40,7 @@ print("Flood ML model loaded successfully!")
 # ---------------- DATABASE ----------------
 
 def init_db():
-    conn = sqlite3.connect("flood_data.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -156,7 +159,7 @@ def save_sensor_data(data: SensorData):
 
     timestamp = datetime.now().isoformat()
 
-    conn = sqlite3.connect("flood_data.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -212,33 +215,12 @@ def predict(data: SensorData):
     }
 
 
-# ---------------- ANALYZE + STORE ----------------
-
-@app.post("/predict")
-def predict(data: SensorData):
-
-    input_data = pd.DataFrame([{
-        "rainfall_mm": data.rainfall_mm,
-        "water_level_cm": data.water_level_cm,
-        "temperature_c": data.temperature_c,
-        "humidity": data.humidity
-    }])
-
-    prediction = model.predict(input_data)[0]
-
-    return {
-        "location": data.location,
-        "risk_level": prediction,
-        "alert": prediction == "HIGH"
-    }
-
-
 # ---------------- LATEST SENSOR DATA ----------------
 
 @app.get("/latest-data")
 def latest_data():
 
-    conn = sqlite3.connect("flood_data.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -277,7 +259,7 @@ def latest_data():
 @app.get("/history")
 def history():
 
-    conn = sqlite3.connect("flood_data.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -313,7 +295,7 @@ def analyze(data: SensorData):
 
     timestamp = datetime.now().isoformat()
 
-    conn = sqlite3.connect("flood_data.db")
+    conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     cursor.execute("""
@@ -397,6 +379,6 @@ def analyze(data: SensorData):
         "reasons": reasons,
         "timestamp": timestamp
     }
-# ---------------- ML MODEL ----------------
+from mangum import Mangum
 
-model = joblib.load("ml/flood_model.pkl")
+handler = Mangum(app)
