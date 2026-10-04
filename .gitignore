@@ -1,5 +1,123 @@
-﻿.venv/
-venv/
+﻿# =========================================================
+# AQUASENTINEL - ROOT GITIGNORE
+# =========================================================
+
+# ---------------------------------------------------------
+# Python
+# ---------------------------------------------------------
+
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
+*.pyd
+
+# Python virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python tooling
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Jupyter
+.ipynb_checkpoints/
+
+
+# ---------------------------------------------------------
+# Environment / Secrets
+# ---------------------------------------------------------
+
 .env
+.env.*
+!.env.example
+
+# Credentials / keys
+*.pem
+*.key
+*.crt
+
+
+# ---------------------------------------------------------
+# Backend - Database
+# ---------------------------------------------------------
+
+# Local SQLite databases
+backend/*.db
+backend/*.sqlite
+backend/*.sqlite3
+
+# If there are temporary database files
+backend/*.db-journal
+backend/*.db-wal
+backend/*.db-shm
+
+
+# ---------------------------------------------------------
+# Backend - Python cache
+# ---------------------------------------------------------
+
+backend/__pycache__/
+backend/**/__pycache__/
+
+
+# ---------------------------------------------------------
+# Frontend - Node
+# ---------------------------------------------------------
+
+frontend/node_modules/
+
+# Vite
+frontend/.vite/
+
+# Production builds
+frontend/dist/
+frontend/build/
+
+
+# ---------------------------------------------------------
+# Logs
+# ---------------------------------------------------------
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+
+# ---------------------------------------------------------
+# OS generated files
+# ---------------------------------------------------------
+
+.DS_Store
+Thumbs.db
+
+
+# ---------------------------------------------------------
+# IDE
+# ---------------------------------------------------------
+
+.vscode/
+.idea/
+
+
+# ---------------------------------------------------------
+# Temporary files
+# ---------------------------------------------------------
+
+*.tmp
+*.temp
+*.swp
+*.swo
+
+
+# ---------------------------------------------------------
+# Python model/cache files
+# ---------------------------------------------------------
+
+# DO NOT ignore flood_model.pkl if your Lambda deployment
+# needs this model committed and it is below GitHub's limit.
+
+# *.pkl
